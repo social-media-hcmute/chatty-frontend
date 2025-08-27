@@ -4,7 +4,6 @@ import Input from '../../../components/input/Input';
 import Button from '../../../components/button/Button';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Utils } from '../../../services/utils/ultis.service';
 import { authService } from '../../../services/api/auth/auth.service';
 
 const Login = () => {
@@ -20,14 +19,15 @@ const Login = () => {
   const loginUser= async(event) => {
     setLoading(true);
     event.preventDefault();
-    const result = await authService.signIn({
+    try {
+      const result = await authService.signIn({
       username,
       password
     });
     setAlertType('alert-success');
-    setHasError(false);
+    setLoading(false)
+    setHasError(true);
     setUser(result.data.user);
-    try {
     }
     catch (error){
       setLoading(false);
@@ -39,7 +39,7 @@ const Login = () => {
   useEffect(()=>{
     if(loading && !user) return;
     if(user) {
-      console.log('naviate to streams  from login pae');
+      console.log('navigate to streams  from login page');
       setLoading(false);
     }
   },[loading,user]);

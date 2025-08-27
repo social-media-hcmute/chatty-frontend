@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import './Input.scss';
 
-const Input = ({ name, type, value, className, labelText, placeholder, handleChange }) => {
+const Input = ({ name, type, value, className, labelText, placeholder, handleChange ,style}) => {
   return (
     <>
       <div className="form-row">
@@ -17,6 +17,7 @@ const Input = ({ name, type, value, className, labelText, placeholder, handleCha
           onChange={handleChange}
           placeholder={placeholder}
           className={`form-input ${className}`}
+          style={style}
           autoComplete="false"
         />
       </div>
@@ -32,6 +33,7 @@ Input.propTypes = {
   labelText: PropTypes.string,
   placeholder: PropTypes.string,
   handleChange: PropTypes.func,
+  style:PropTypes.any,
 };
 
 export default Input;
