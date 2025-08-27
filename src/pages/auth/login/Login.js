@@ -1,10 +1,14 @@
-import './Login.scss';
+import '@pages/auth/login/Login.scss';
 import { FaArrowRight } from "react-icons/fa";
-import Input from '../../../components/input/Input';
-import Button from '../../../components/button/Button';
-import { Link } from 'react-router-dom';
+import Input from '@components/input/Input';
+import Button from '@components/button/Button';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { authService } from '../../../services/api/auth/auth.service';
+import { authService } from '@services/api/auth/auth.service';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { Utils } from '@services/utils/ultis.service';
+import useSessionStorage from '@hooks/useSessionStorage';
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +19,12 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [alertType, setAlertType] =useState('');
   const [user, setUser]= useState();
+  const [setStoredUsername] =useLocalStorage('username','set');
+  const [setLoggedIn] =useLocalStorage('keepLoggedIn','set');
+  const [pageReload] =useSessionStorage('pageReload','set');
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const loginUser= async(event) => {
     setLoading(true);
@@ -24,10 +34,11 @@ const Login = () => {
       username,
       password
     });
+    setStoredUsername(username);
+    setLoggedIn(keepLoggedIn);
     setAlertType('alert-success');
-    setLoading(false)
-    setHasError(true);
-    setUser(result.data.user);
+    setHasError(false);
+    Utils.dispatchUser(result,pageReload,dispatch,setUser);
     }
     catch (error){
       setLoading(false);
@@ -38,11 +49,8 @@ const Login = () => {
   }
   useEffect(()=>{
     if(loading && !user) return;
-    if(user) {
-      console.log('navigate to streams  from login page');
-      setLoading(false);
-    }
-  },[loading,user]);
+    if(user) navigate('/app/social/streams')
+  },[loading,user,navigate]);
   return (
     <div className="auth-inner">
       {hasError && errorMessage && (

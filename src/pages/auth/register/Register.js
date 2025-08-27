@@ -1,10 +1,13 @@
-import './Register.scss';
-import Input from '../../../components/input/Input';
-import Button from '../../../components/button/Button';
+import '@pages/auth/register/Register.scss';
+import Input from '@components/input/Input';
+import Button from '@components/button/Button';
 import { useEffect, useState } from 'react';
-import { Utils } from '../../../services/utils/ultis.service';
-import { authService } from '../../../services/api/auth/auth.service';
-
+import { Utils } from '@services/utils/ultis.service';
+import { authService } from '@services/api/auth/auth.service';
+import { useNavigate } from 'react-router-dom';
+import useLocalStorage from '@hooks/useLocalStorage';
+import useSessionStorage from '@hooks/useSessionStorage';
+import { useDispatch } from 'react-redux';
 
 const Register = () => {
   
@@ -16,13 +19,18 @@ const Register = () => {
   const [alertType, setAlertType] =useState('');
   const [hasError, setHasError]=useState(false);
   const [user, setUser]= useState();
+  const [setStoredUsername] =useLocalStorage('username','set');
+  const [setLoggedIn] =useLocalStorage('keepLoggedIn','set');
+  const [pageReload] =useSessionStorage('pageReload','set');
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
   
   const registerUser = async (event) => {
     setLoading(true);
     event.preventDefault();
     try {
-      setAlertType('alert-success');
-      setHasError(false);
+      
       const avatarColor =Utils.avaColor();
       const avatarImage =Utils.generateAvatar(username.charAt(0).toUpperCase(),avatarColor);
       const result = await authService.signUp({
@@ -33,7 +41,11 @@ const Register = () => {
         avatarImage
       });
       console.log(result);
-      setUser(result.data.user);
+      setLoggedIn(true);
+      setHasError(false);
+      setAlertType('alert-success');
+      setStoredUsername(username);
+      Utils.dispatchUser(result,pageReload,dispatch,setUser);
     } catch (error) {
       setLoading(false);
       setHasError(true);
@@ -43,11 +55,8 @@ const Register = () => {
   };
   useEffect(()=>{
     if(loading && !user) return;
-    if(user) {
-      console.log('naviate to streams page');
-      setLoading(false);
-    }
-  },[loading,user]);
+    if(user) navigate('/app/social/streams')
+  },[loading,user, navigate]);
   return (
     <div className="auth-inner">
       {hasError && errorMessage && (
