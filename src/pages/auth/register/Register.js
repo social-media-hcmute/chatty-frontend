@@ -10,29 +10,30 @@ import useSessionStorage from '@hooks/useSessionStorage';
 import { useDispatch } from 'react-redux';
 
 const Register = () => {
-  
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [alertType, setAlertType] =useState('');
-  const [hasError, setHasError]=useState(false);
-  const [user, setUser]= useState();
-  const [setStoredUsername] =useLocalStorage('username','set');
-  const [setLoggedIn] =useLocalStorage('keepLoggedIn','set');
-  const [pageReload] =useSessionStorage('pageReload','set');
+  const [alertType, setAlertType] = useState('');
+  const [hasError, setHasError] = useState(false);
+  const [user, setUser] = useState();
+  const [setStoredUsername] = useLocalStorage('username', 'set');
+  const [setLoggedIn] = useLocalStorage('keepLoggedIn', 'set');
+  const [pageReload] = useSessionStorage('pageReload', 'set');
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-  
+
   const registerUser = async (event) => {
     setLoading(true);
     event.preventDefault();
+
     try {
-      
-      const avatarColor =Utils.avaColor();
-      const avatarImage =Utils.generateAvatar(username.charAt(0).toUpperCase(),avatarColor);
+
+      const avatarColor = Utils.avaColor();
+      console.log("Registering user...");
+      const avatarImage = Utils.generateAvatar(username.charAt(0).toUpperCase(), avatarColor);
       const result = await authService.signUp({
         username,
         email,
@@ -44,8 +45,16 @@ const Register = () => {
       setLoggedIn(true);
       setHasError(false);
       setAlertType('alert-success');
-      setStoredUsername(username);
-      Utils.dispatchUser(result,pageReload,dispatch,setUser);
+      setErrorMessage('Please check your email for verification!');
+      setLoading(false);
+      setTimeout(() => {
+        setErrorMessage('');
+        setUsername('');
+        setEmail('');
+        setPassword('');
+      }, 2000);
+      //setStoredUsername(username);
+      //Utils.dispatchUser(result, pageReload, dispatch, setUser);
     } catch (error) {
       setLoading(false);
       setHasError(true);
@@ -53,13 +62,13 @@ const Register = () => {
       setErrorMessage(error?.response?.data?.message);
     }
   };
-  useEffect(()=>{
-    if(loading && !user) return;
-    if(user) navigate('/app/social/streams')
-  },[loading,user, navigate]);
+  // useEffect(() => {
+  //   if (loading && !user) return;
+  //   if (user) navigate('/app/social/streams')
+  // }, [loading, user, navigate]);
   return (
     <div className="auth-inner">
-      {hasError && errorMessage && (
+      {errorMessage && (
         <div className={`alerts ${alertType}`} role="alert">
           {errorMessage}
         </div>
@@ -73,8 +82,8 @@ const Register = () => {
             value={username}
             labelText="Username"
             placeholder="Enter Username"
-            style={{ border: hasError ? '1px solid #fa9b8a' : '' }}
-            handleChange ={(event)=>setUsername(event.target.value)}
+            style={{ border: `${hasError ? '1px solid #fa9b8a' : ''}` }}
+            handleChange={(event) => setUsername(event.target.value)}
           />
           <Input
             id="email"
@@ -83,8 +92,8 @@ const Register = () => {
             value={email}
             labelText="Email"
             placeholder="Enter Email"
-            style={{ border: hasError ? '1px solid #fa9b8a' : '' }}
-            handleChange ={(event)=>setEmail(event.target.value)}
+            style={{ border: `${hasError ? '1px solid #fa9b8a' : ''}` }}
+            handleChange={(event) => setEmail(event.target.value)}
           />
           <Input
             id="password"
@@ -93,13 +102,15 @@ const Register = () => {
             value={password}
             labelText="Password"
             placeholder="Enter Password"
-            style={{ border: hasError ? '1px solid #fa9b8a' : '' }}
-            handleChange ={(event)=>setPassword(event.target.value)}
+            style={{ border: `${hasError ? '1px solid #fa9b8a' : ''}` }}
+            handleChange={(event) => setPassword(event.target.value)}
           />
         </div>
-
-        <Button label={`${loading ? 'SIGN UP IN PROGRESS...' : 'SIGNUP'}`} className="auth-button button" disabled={!username || !email || !password} />
-
+        <Button
+          label={`${loading ? 'SIGNUP IN PROGRESS...' : 'SIGNUP'}`}
+          className="auth-button button"
+          disabled={!username || !email || !password}
+        />
       </form>
     </div>
   );

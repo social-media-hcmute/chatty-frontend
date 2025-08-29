@@ -1,40 +1,42 @@
-import { floor, forInRight, random } from "lodash";
-import {avatarColors} from '@services/utils/static.data'
-import { clearUser,addUser } from "@redux/reducers/user/user.service";
+import { floor, random } from "lodash";
+import { avatarColors } from '@services/utils/static.data'
+import { clearUser, addUser } from "@redux/reducers/user/user.service";
 
-export class Utils{
-    static avaColor(){
-        return avatarColors(floor(random(0.9)* avatarColors.length))
-    }
-    static generateAvatar(text,backgroundColor ,forgroundColor ='white'){
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
+export class Utils {
+  static avaColor() {
+    return avatarColors[floor(random(0.9) * avatarColors.length)];
+  }
 
-        canvas.width=200;
-        canvas.height=200;
+  static generateAvatar(text, backgroundColor, foregroundColor = 'white') {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
 
-        canvas.fillStyle =backgroundColor;
-        canvas.fillReact(0,0, canvas.width,canvas.height);
+    canvas.width = 200;
+    canvas.height = 200;
 
-        canvas.font= 'normal 80px sans-serif';
-        context.fillStyle= forgroundColor;
-        context.textAlign='center';
-        context.textBaseline='middle';
-        context.fillText(text,canvas.width/2,canvas.height/2);
+    context.fillStyle = backgroundColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
-        return canvas.toDataURL('image/png')
-    }
+    // Draw text
+    context.font = 'normal 80px sans-serif';
+    context.fillStyle = foregroundColor;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
 
-    static dispatchUser (result, pageReload, dispatch, setUser){
-        pageReload(true);
-        dispatch(addUser({token: result.data.token, profile: result.data.user}));
-        setUser(result.data.user);
-    }
+    return canvas.toDataURL('image/png');
+  }
 
-    static clearStore({ dispatch,deleteStorageUsername,deleteSessionPageReload,setLoggedIn}){
-        dispatch (clearUser());
-        deleteStorageUsername();
-        deleteSessionPageReload();
-        setLoggedIn(false);
-    }
+  static dispatchUser(result, pageReload, dispatch, setUser) {
+    pageReload(true);
+    dispatch(addUser({ token: result.data.token, profile: result.data.user }));
+    setUser(result.data.user);
+  }
+
+  static clearStore({ dispatch, deleteStorageUsername, deleteSessionPageReload, setLoggedIn }) {
+    dispatch(clearUser());
+    deleteStorageUsername();
+    deleteSessionPageReload();
+    setLoggedIn(false);
+  }
 }
