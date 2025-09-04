@@ -2,7 +2,7 @@ import '@pages/auth/register/Register.scss';
 import Input from '@components/input/Input';
 import Button from '@components/button/Button';
 import { useEffect, useState } from 'react';
-import { Utils } from '@services/utils/ultis.service';
+import { Utils } from '@services/utils/utils.service';
 import { authService } from '@services/api/auth/auth.service';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorage from '@hooks/useLocalStorage';
@@ -31,7 +31,7 @@ const Register = () => {
 
     try {
 
-      const avatarColor = Utils.avaColor();
+      const avatarColor = Utils.avatarColor();
       console.log("Registering user...");
       const avatarImage = Utils.generateAvatar(username.charAt(0).toUpperCase(), avatarColor);
       const result = await authService.signUp({
