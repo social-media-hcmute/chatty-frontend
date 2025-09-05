@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.11.0",
     "lodash": "^4.17.21",
+    "msw": "^2.11.1",
     "react": "^19.1.1",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^19.1.1",
@@ -20,6 +21,8 @@
     "react-router-dom": "^7.8.2",
     "react-scripts": "5.0.1",
     "sass": "^1.91.0",
+    "text-encoding": "^0.7.0",
+    "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -29,7 +32,7 @@
     "prettier:check": "prettier --check 'src/**/*.{js,jsx,json}'",
     "prettier:fix": "prettier --write 'src/**/*.{js,jsx,json}'",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test"
+    "test": "react-app-rewired test --coverage --forceExit --detectOpenHandles --watchAll=false"
   },
   "eslintConfig": {
     "extends": [
@@ -58,7 +61,52 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0",
+    "jest-canvas-mock": "^2.5.2",
     "prettier": "^3.6.2",
     "react-app-alias": "^2.2.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/test/**/*.js?(x)",
+      "!**/node_modules/**"
+    ],
+    "coverageReporters": [
+      "text-summary",
+      "lcov"
+    ],
+    "moduleNameMapper": {
+      "@components/(.*)": [
+        "<rootDir>/src/components/$1"
+      ],
+      "@services/(.*)": [
+        "<rootDir>/src/services/$1"
+      ],
+      "@hooks/(.*)": [
+        "<rootDir>/src/hooks/$1"
+      ],
+      "@mocks/(.*)": [
+        "<rootDir>/src/mocks/$1"
+      ],
+      "@pages/(.*)": [
+        "<rootDir>/src/pages/$1"
+      ],
+      "@redux/(.*)": [
+        "<rootDir>/src/redux-toolkit/$1"
+      ],
+      "@assets/(.*)": [
+        "<rootDir>/src/assets/$1"
+      ],
+      "@colors/(.*)": [
+        "<rootDir>/src/colors/$1"
+      ],
+      "@root/(.*)": [
+        "<rootDir>/src/$1"
+      ]
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { floor, random } from "lodash";
 import { avatarColors } from '@services/utils/static.data'
-import { clearUser, addUser } from "@redux/reducers/user/user.service";
+import { clearUser, addUser } from "@redux/reducers/user/user.reducer";
 
 export class Utils {
   static avaColor() {
@@ -39,4 +39,25 @@ export class Utils {
     deleteSessionPageReload();
     setLoggedIn(false);
   }
+
+  static appEnvironment() {
+  const env = process.env.REACT_APP_ENVIRONMENT;
+  if (env === 'development') {
+    return 'DEV';
+  } else if (env === 'staging') {
+    return 'STG';
+  }
+  }
+  
+  static mapSettingsDropdownItems(setSettings) {
+  const items = [];
+  const item = {
+    topText: 'My Profile',
+    subText: 'View personal profile.'
+  };
+  items.push(item);
+  setSettings(items);
+  return items;
+  }
+
 }
