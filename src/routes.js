@@ -8,11 +8,12 @@ import Following from '@pages/social/following/Following';
 import People from '@pages/social/people/People';
 import Photos from '@pages/social/photos/Photos';
 import Profile from '@pages/social/profile/Profile';
-import Notifications from '@pages/social/notifications/Notifications';
+import Notifications from '@pages/social/notifications/Notification';
 import ProtectedRoute from '@pages/ProtectedRoute';
 import Error from '@pages/error/Error';
 import { Suspense } from 'react';
 import StreamsSkeleton from '@pages/social/streams/StreamsSkeleton';
+import NotificationSkeleton from '@pages/social/notifications/NotificationSkeleton';
 
 export const AppRouter = () => {
   const elements = useRoutes([
@@ -70,7 +71,11 @@ export const AppRouter = () => {
         },
         {
           path: 'notifications',
-          element: <Notifications />
+          element: (
+            <Suspense fallback={<NotificationSkeleton/>}>
+              <Notifications />
+            </Suspense>
+          )
         },
         {
           path: 'profile/:username',

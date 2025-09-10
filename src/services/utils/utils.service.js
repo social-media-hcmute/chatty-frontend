@@ -1,6 +1,7 @@
 import { floor, random } from "lodash";
 import { avatarColors } from '@services/utils/static.data'
 import { clearUser, addUser } from "@redux/reducers/user/user.reducer";
+import { addNotification,clearNotification } from "@redux/reducers/notifications/notification.reducer";
 
 export class Utils {
   static avaColor() {
@@ -35,29 +36,46 @@ export class Utils {
 
   static clearStore({ dispatch, deleteStorageUsername, deleteSessionPageReload, setLoggedIn }) {
     dispatch(clearUser());
+    dispatch(clearNotification());
     deleteStorageUsername();
     deleteSessionPageReload();
     setLoggedIn(false);
   }
 
-  static appEnvironment() {
-  const env = process.env.REACT_APP_ENVIRONMENT;
-  if (env === 'development') {
-    return 'DEV';
-  } else if (env === 'staging') {
-    return 'STG';
+  static dispatchNotification(message, type, dispatch) {
+    dispatch(addNotification({ message, type }));
   }
+
+  static dispatchClearNotification(dispatch) {
+    dispatch(clearNotification());
+  }
+
+  static appEnvironment() {
+    const env = process.env.REACT_APP_ENVIRONMENT;
+    if (env === 'development') {
+      return 'DEV';
+    } else if (env === 'staging') {
+      return 'STG';
+    }
   }
   
   static mapSettingsDropdownItems(setSettings) {
-  const items = [];
-  const item = {
-    topText: 'My Profile',
-    subText: 'View personal profile.'
-  };
-  items.push(item);
-  setSettings(items);
-  return items;
+    const items = [];
+    const item = {
+      topText: 'My Profile',
+      subText: 'View personal profile.'
+    };
+    items.push(item);
+    setSettings(items);
+    return items;
+  }
+
+  static appImageUrl(version, id) {
+    if (typeof version === 'string' && typeof id === 'string') {
+      version = version.replace(/["']+/g, '');
+      id = id.replace(/["']+/g, '');
+    }
+    return `https://res.cloudinary.com/dyamr9ym3/image/upload/v${version}/${id}`;
   }
 
 }
