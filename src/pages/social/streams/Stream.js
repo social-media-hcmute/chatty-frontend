@@ -1,18 +1,71 @@
-import { useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useRef, useState,useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import '@pages/social/streams/Streams.scss';
 import Suggestions from '@components/suggestions/Suggestions';
 import { getUserSuggestions } from '@redux/api/suggestion';
 import useEffectOnce from '@hooks/useEffectOnce';
+import PostForm from '@components/posts/post-form/PostForm';
+import Posts from '@components/posts/Posts';
+import { postService } from '@services/api/post/post.service';
+import { Utils } from '@services/utils/utils.service';
+import { getPosts } from '@redux/api/post';
+import { uniqBy } from 'lodash';
+import useInfiniteScroll from '@hooks/useInfiniteScroll';
+import { PostUtils } from '@services/utils/post-utils.service';
 
 const Streams = () => {
+  const {allPosts}=useSelector((state)=>state);
+  const [posts,setPosts]= useState([]);
+  const [loading,setLoading]=useState(true);
+  const [totalPostCount,setTotalPostCount]=useState(0);
+  const [currentPage, setCurrentPage]=useState(1);
   const bodyRef = useRef(null);
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
+  let appPosts=useRef([]);
+  let PAGE_SIZE=10;
+  useInfiniteScroll(bodyRef,bottomLineRef,fetchPostData);
+
+  function fetchPostData(){
+    let pageNum=currentPage;
+    if(currentPage<=Math.round(totalPostCount/PAGE_SIZE)){
+      pageNum+=1;
+      setCurrentPage(pageNum);
+      getAllPosts();
+    }
+  }
+
+  const getAllPosts = async () => {
+    try {
+      const response = await postService.getAllPosts(1);
+      if (response.data.posts.length > 0) {
+        appPosts=[...posts,...response.data.posts];
+        const allPosts=uniqBy(appPosts,'id');
+        setPosts(allPosts);
+      }
+      setLoading(false);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
 
   useEffectOnce(() => {
     dispatch(getUserSuggestions());
   });
+
+  useEffect(() => {
+    dispatch(getPosts());
+  },[dispatch]);
+
+  useEffect(() => {
+    setLoading(allPosts?.isLoading);
+    setPosts(allPosts?.posts);
+    setTotalPostCount(allPosts?.totalPostCount)
+  },[allPosts]);
+
+  useEffect(() => {
+    PostUtils.socketIOPost(posts,setPosts);
+  },[posts]);
 
   return (
     <div className="streams" data-testid="streams">
@@ -22,8 +75,8 @@ const Streams = () => {
           ref={bodyRef}
           style={{ backgroundColor: 'white' }}
         >
-          <div>Post Form</div>
-          <div>Posts Items</div>
+          <PostForm/>
+          <Posts allPosts={[posts]} postsLoading={loading} userFollowing={[]}/>
           <div
             ref={bottomLineRef}
             style={{ marginBottom: '50px', height: '50px' }}
