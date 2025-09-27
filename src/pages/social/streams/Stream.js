@@ -9,9 +9,11 @@ import Posts from '@components/posts/Posts';
 import { postService } from '@services/api/post/post.service';
 import { Utils } from '@services/utils/utils.service';
 import { getPosts } from '@redux/api/post';
-import { uniqBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils.service';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { addReactions } from '@redux/reducers/post/user-post-reaction.reducer';
 
 const Streams = () => {
   const {allPosts}=useSelector((state)=>state);
@@ -21,10 +23,12 @@ const Streams = () => {
   const [currentPage, setCurrentPage]=useState(1);
   const bodyRef = useRef(null);
   const bottomLineRef = useRef();
+  const storedUsername=useLocalStorage('username','get');
   const dispatch = useDispatch();
   let appPosts=useRef([]);
   let PAGE_SIZE=10;
   useInfiniteScroll(bodyRef,bottomLineRef,fetchPostData);
+  const [deleteSelectedPostId]=useLocalStorage('selectedPostId','delete')
 
   function fetchPostData(){
     let pageNum=currentPage;
@@ -37,11 +41,12 @@ const Streams = () => {
 
   const getAllPosts = async () => {
     try {
-      const response = await postService.getAllPosts(1);
+      const response = await postService.getAllPosts(currentPage);
       if (response.data.posts.length > 0) {
-        appPosts=[...posts,...response.data.posts];
-        const allPosts=uniqBy(appPosts,'id');
-        setPosts(allPosts);
+        appPosts = [...posts, ...response.data.posts];
+        const allPosts = uniqBy(appPosts, '_id');
+        const orderedPosts = orderBy(allPosts, ['createdAt'], ['desc']);
+        setPosts(orderedPosts);
       }
       setLoading(false);
     } catch (error) {
@@ -49,17 +54,29 @@ const Streams = () => {
     }
   };
 
+  const getReactionsByUsername=async ()=>{
+    try{
+      const response= await postService.getReactionsByUsername(storedUsername);
+      dispatch(addReactions(response.data.reactions));
+    } catch(error){
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  }
+
   useEffectOnce(() => {
-    dispatch(getUserSuggestions());
+    getReactionsByUsername();
+    deleteSelectedPostId();
   });
 
   useEffect(() => {
     dispatch(getPosts());
+    dispatch(getUserSuggestions())
   },[dispatch]);
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
-    setPosts(allPosts?.posts);
+    const orderedPosts = orderBy(allPosts?.posts, ['createdAt'], ['desc']);
+    setPosts(orderedPosts);
     setTotalPostCount(allPosts?.totalPostCount)
   },[allPosts]);
 

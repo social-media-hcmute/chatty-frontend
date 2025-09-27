@@ -9,7 +9,7 @@ const initialState = {
     feelingsIsOpen: false,
     openFileDialog: false,
     gifModalIsOpen: false,
-    reactionModalIsOpen: false,
+    reactionsModalIsOpen: false,
     commentsModalIsOpen: false,
     deleteDialogIsOpen: false
 };
@@ -30,7 +30,7 @@ const modalSlice = createSlice({
             state.feeling = '';
             state.image = '';
             state.data = null;
-            state.feelingIsOpen = false;
+            state.feelingsIsOpen = false;
             state.gifModalIsOpen = false;
             state.reactionsModalIsOpen = false;
             state.commentsModalIsOpen = false;

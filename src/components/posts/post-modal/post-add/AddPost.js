@@ -115,7 +115,6 @@ const AddPost = ({selectedImage}) => {
                 'error',
                 setApiResponse,
                 setLoading,
-                setDisable,
                 dispatch
             );
         }

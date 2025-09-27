@@ -21,7 +21,7 @@ const AuthTabs = () => {
 
   return (
     <div className="container-wrapper" style={{ backgroundImage: `url(${backgroundImage})` }}>
-      <div className="environment">DEV</div>
+      <div className="environment">{environment}</div>
       <div className="container-wrapper-auth">
         <div className="tabs">
           <div className="tabs-auth">

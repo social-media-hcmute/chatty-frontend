@@ -9,12 +9,12 @@ import '@components/posts/post-form/PostForm.scss'
 import { openModal, toggleFeelingModal, toggleImageModal } from '@redux/reducers/modal/modal.reducer'
 import AddPost from '../post-modal/post-add/AddPost'
 import { ImageUtils } from '@services/utils/image-utils.service'
-import PropTypes from 'prop-types'
+import EditPost from '../post-modal/post-edit/EditPost'
 
 const PostForm = () => {
     const { profile } =useSelector((state)=> state.user);
     const dispatch = useDispatch();
-    const {type,isOpen,openFileDialog,gifModalIsOpen,feelingIsOpen}= useSelector((state)=>state.modal);
+    const {type,isOpen,openFileDialog,gifModalIsOpen,feelingsIsOpen}= useSelector((state)=>state.modal);
     const fileInputRef= useRef();
     const [selectedPostImage,setSelectedPostImage]=useState();
 
@@ -38,7 +38,7 @@ const PostForm = () => {
     }
     const openFeelingsComponent=()=>{
         dispatch(openModal({type:'add'}));
-        dispatch(toggleFeelingModal(!feelingIsOpen));
+        dispatch(toggleFeelingModal(!feelingsIsOpen));
     }
     return (
     <>
@@ -80,6 +80,7 @@ const PostForm = () => {
             </div>
         </div>
         {isOpen && type === 'add' && <AddPost selectedImage={selectedPostImage}/>}
+        {isOpen && type === 'edit' && <EditPost/>}
     </>
     )
 }

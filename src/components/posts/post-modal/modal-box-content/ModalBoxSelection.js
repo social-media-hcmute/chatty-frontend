@@ -11,9 +11,9 @@ import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import { useRef } from 'react';
 
 const ModalBoxSelection = ({setSelectedPostImage}) => {
-  const {feelingIsOpen,gifModalIsOpen}=useSelector((state)=> state.modal);
+  const {feelingsIsOpen,gifModalIsOpen}=useSelector((state)=> state.modal);
   const feelingsRef = useRef(null);
-  const [toggleFeelings,setToggleFeelings]=useDetectOutsideClick(feelingsRef,feelingIsOpen);
+  const [toggleFeelings,setToggleFeelings]=useDetectOutsideClick(feelingsRef,feelingsIsOpen);
   const {post}=useSelector((state)=> state.post);
   const fileInputRef=useRef();
   const dispatch= useDispatch();
