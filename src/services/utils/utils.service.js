@@ -1,4 +1,4 @@
-import { floor, random, some } from "lodash";
+import { findIndex, floor, random, some } from "lodash";
 import { avatarColors } from '@services/utils/static.data'
 import { clearUser, addUser } from "@redux/reducers/user/user.reducer";
 import { addNotification,clearNotification } from "@redux/reducers/notifications/notification.reducer";
@@ -96,6 +96,10 @@ export class Utils {
   static checkIfUserIsFollowed(userFollowers, postCreatorId, userId) {
     return some(userFollowers, (user) => user._id === postCreatorId || postCreatorId === userId);
   }
+
+  static checkIfUserIsOnline(username, onlineUsers) {
+    return some(onlineUsers, (user) => user === username?.toLowerCase());
+  }
   
   static firstLetterUpperCase(word) {
     if (!word) return '';
@@ -128,4 +132,26 @@ export class Utils {
     return imageId && imageVersion ? this.appImageUrl(imageVersion, imageId) : '';
   }
 
+  static getVideo(videoId, videoVersion) {
+    return videoId && videoVersion
+      ? `https://res.cloudinary.com/dyamr9ym3/video/upload/v${videoVersion}/${videoId}`
+      : '';
+  }
+
+  static removeUserFromList(list, userId) {
+    const index = findIndex(list, (id) => id === userId);
+    list.splice(index, 1);
+    return list;
+  }
+
+  static checkUrl(url, word) {
+    return url.includes(word);
+  }
+
+  static renameFile(element) {
+    const fileName = element.name.split('.').slice(0, -1).join('.');
+    const blob = element.slice(0, element.size, '/image/png');
+    const newFile = new File([blob], `${fileName}.png`, { type: '/image/png' });
+    return newFile;
+  }
 }

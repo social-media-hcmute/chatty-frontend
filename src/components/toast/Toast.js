@@ -18,7 +18,7 @@ import { useDispatch } from 'react-redux';
     setList([...listData.current]);
     if (!listData.current.length) {
       list.length = 0;
-      Utils.dispatchClearNotification();
+      Utils.dispatchClearNotification(dispatch);
     }
   }, [list, dispatch]);
 
@@ -39,10 +39,10 @@ import { useDispatch } from 'react-redux';
 
   return (
     <div className={`toast-notification-container ${position}`}>
-      {list.map((toast, index) => (
+      {list.map((toast) => (
         <div
           data-testid="toast-notification"
-          key={index}
+          key={Utils.generateString(10)}
           className={`toast-notification toast ${position}`}
           style={{ backgroundColor: toast.backgroundColor }}
         >

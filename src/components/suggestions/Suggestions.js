@@ -4,6 +4,7 @@ import { useEffect,useState } from "react";
 import "@components/suggestions/Suggestions.scss";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Utils } from "@services/utils/utils.service";
 
 const Suggestions=() =>{
     const { suggestions } = useSelector((state) => state);
@@ -22,8 +23,8 @@ const Suggestions=() =>{
             <hr />
             <div className="suggestions-container">
                 <div className="suggestions">
-                    {users?.map((user, index) => (
-                        <div data-testid="suggestions-item" className="suggestions-item" key={index}>
+                    {users?.map((user) => (
+                        <div data-testid="suggestions-item" className="suggestions-item" key={Utils.generateString(10)}>
                             <Avatar
                                 name={user?.username}
                                 bgColor={user?.avatarColor}

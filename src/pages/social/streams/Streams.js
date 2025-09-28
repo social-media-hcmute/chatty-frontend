@@ -14,11 +14,13 @@ import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils.service';
 import useLocalStorage from '@hooks/useLocalStorage';
 import { addReactions } from '@redux/reducers/post/user-post-reaction.reducer';
+import { followerService } from '@services/api/followers/follower.service';
 
 const Streams = () => {
   const {allPosts}=useSelector((state)=>state);
   const [posts,setPosts]= useState([]);
   const [loading,setLoading]=useState(true);
+  const [following, setFollowing] = useState([]);
   const [totalPostCount,setTotalPostCount]=useState(0);
   const [currentPage, setCurrentPage]=useState(1);
   const bodyRef = useRef(null);
@@ -38,6 +40,15 @@ const Streams = () => {
       getAllPosts();
     }
   }
+
+  const getUserFollowing = async () => {
+    try {
+      const response = await followerService.getUserFollowing();
+      setFollowing(response.data.following);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
 
   const getAllPosts = async () => {
     try {
@@ -66,12 +77,10 @@ const Streams = () => {
   useEffectOnce(() => {
     getReactionsByUsername();
     deleteSelectedPostId();
-  });
-
-  useEffect(() => {
+    getUserFollowing();
     dispatch(getPosts());
-    dispatch(getUserSuggestions())
-  },[dispatch]);
+    dispatch(getUserSuggestions());
+  });
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
@@ -90,10 +99,9 @@ const Streams = () => {
         <div
           className="streams-post"
           ref={bodyRef}
-          style={{ backgroundColor: 'white' }}
         >
           <PostForm/>
-          <Posts allPosts={[posts]} postsLoading={loading} userFollowing={[]}/>
+          <Posts allPosts={posts} postsLoading={loading} userFollowing={following}/>
           <div
             ref={bottomLineRef}
             style={{ marginBottom: '50px', height: '50px' }}
