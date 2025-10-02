@@ -4,7 +4,7 @@ import '@pages/social/notifications/Notification.scss';
 import { FaCircle, FaRegCircle, FaRegTrashAlt } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { notificationService} from '@services/api/notifications/notifications.service';
+import { notificationService} from '@services/api/notifications/notification.service';
 import { Utils } from '@services/utils/utils.service';
 import useEffectOnce from '@hooks/useEffectOnce';
 import { NotificationUtils } from '@services/utils/notification-utils.service';

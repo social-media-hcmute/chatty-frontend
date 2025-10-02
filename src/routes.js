@@ -14,6 +14,7 @@ import Error from '@pages/error/Error';
 import { Suspense } from 'react';
 import StreamsSkeleton from '@pages/social/streams/StreamsSkeleton';
 import NotificationSkeleton from '@pages/social/notifications/NotificationSkeleton';
+import ProfileSkeleton from '@pages/social/profile/ProfileSkeleton';
 
 export const AppRouter = () => {
   const elements = useRoutes([
@@ -79,7 +80,11 @@ export const AppRouter = () => {
         },
         {
           path: 'profile/:username',
-          element: <Profile />
+          element: (
+            <Suspense fallback={<ProfileSkeleton/>}>
+                <Profile />
+              </Suspense>
+          )
         },
       ]
     },

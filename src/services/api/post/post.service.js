@@ -42,7 +42,7 @@ class PostService{
         return response;
     }
     
-    async getPostCommentsByUsername(postId) {
+    async getPostCommentsUsername(postId) {
         const response = await axios.get(`/post/commentsnames/${postId}`);
         return response;
     }

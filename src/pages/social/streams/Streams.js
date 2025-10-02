@@ -8,7 +8,7 @@ import PostForm from '@components/posts/post-form/PostForm';
 import Posts from '@components/posts/Posts';
 import { postService } from '@services/api/post/post.service';
 import { Utils } from '@services/utils/utils.service';
-import { getPosts } from '@redux/api/post';
+import { getPosts } from '@redux/api/posts';
 import { orderBy, uniqBy } from 'lodash';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils.service';
