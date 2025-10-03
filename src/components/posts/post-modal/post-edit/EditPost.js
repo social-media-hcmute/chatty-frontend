@@ -153,34 +153,46 @@ const EditPost = () => {
   }, [post, postData, getFeeling, postInputData]);
 
   const updatePost = async () => {
-    setLoading(true);
-    setDisable(true);
+    setLoading(!loading);
+    setDisable(!disable);
     try {
       if (Object.keys(feeling).length) {
         postData.feelings = feeling?.name;
       }
-
       if (postData.gifUrl || (postData.imgId && postData.imgVersion)) {
         postData.bgColor = '#ffffff';
       }
-
       postData.privacy = post?.privacy || 'Public';
       postData.profilePicture = profile?.profilePicture;
-
-      if (selectedPostImage) {
-        const result = await ImageUtils.readAsBase64(selectedPostImage);
-        await PostUtils.sendUpdatePostWithImageRequest(result, post?._id, postData, setApiResponse, setLoading, dispatch);
+      if (selectedPostImage || selectedVideo) {
+        let result = '';
+        if (selectedPostImage) {
+          result = await ImageUtils.readAsBase64(selectedPostImage);
+        }
+        if (selectedVideo) {
+          result = await ImageUtils.readAsBase64(selectedVideo);
+        }
+        const type = selectedPostImage ? 'image' : 'video';
+        if (type === 'image') {
+          postData.image = result;
+          postData.video = '';
+        } else {
+          postData.image = '';
+          postData.video = result;
+        }
+        postData.gifUrl = '';
+        postData.imgId = '';
+        postData.imgVersion = '';
+        postData.videoId = '';
+        postData.videoVersion = '';
+        await PostUtils.sendUpdatePostWithFileRequest(type, post?._id, postData, setApiResponse, setLoading, dispatch);
       } else {
+        setHasVideo(false);
         await PostUtils.sendUpdatePostRequest(post?._id, postData, setApiResponse, setLoading, dispatch);
       }
     } catch (error) {
-      PostUtils.dispatchNotification(
-        error.response.data.message,
-        'error',
-        setApiResponse,
-        setLoading,
-        dispatch
-      );
+      setHasVideo(false);
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   };
 
@@ -202,21 +214,27 @@ const EditPost = () => {
     if (!loading && apiResponse === 'success') {
       dispatch(closeModal());
     }
-
     setDisable(post?.post.length <= 0 && !postImage);
   }, [loading, dispatch, apiResponse, post, postImage]);
 
   useEffect(() => {
     if (post?.gifUrl) {
       postData.image = '';
+      postData.video = '';
       setSelectedPostImage(null);
+      setSelectedVideo(null);
+      setHasVideo(false);
       setPostImage(post?.gifUrl);
       PostUtils.postInputData(imageInputRef, postData, post?.post, setPostData);
     } else if (post?.image) {
       setPostImage(post?.image);
+      setHasVideo(false);
+      PostUtils.postInputData(imageInputRef, postData, post?.post, setPostData);
+    } else if (post?.video) {
+      setPostImage(post?.video);
+      setHasVideo(true);
       PostUtils.postInputData(imageInputRef, postData, post?.post, setPostData);
     }
-
     editableFields();
   }, [editableFields, post, postData]);
 

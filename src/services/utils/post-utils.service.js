@@ -1,9 +1,9 @@
-import { closeModal } from "@redux/reducers/modal/modal.reducer";
-import { updatePostItem, clearPost  } from "@redux/reducers/post/post.reducer";
-import { Utils } from "./utils.service";
-import { postService } from "@services/api/post/post.service";
-import { cloneDeep, find, findIndex, remove } from "lodash";
-import { socketService } from "@services/socket/socket.service";
+import { closeModal } from '@redux/reducers/modal/modal.reducer';
+import { clearPost, updatePostItem } from '@redux/reducers/post/post.reducer';
+import { postService } from '@services/api/post/post.service';
+import { socketService } from '@services/socket/socket.service';
+import { Utils } from '@services/utils/utils.service';
+import { cloneDeep, find, findIndex, remove } from 'lodash';
 
 export class PostUtils {
   static selectBackground(bgColor, postData, setTextAreaBackground, setPostData) {
@@ -12,47 +12,35 @@ export class PostUtils {
     setPostData(postData);
   }
 
-  static postInputEditable(textContent,postData,setPostData)
-  {
-    postData.post= textContent;
+  static postInputEditable(textContent, postData, setPostData) {
+    postData.post = textContent;
     setPostData(postData);
   }
 
-  static closePostModal(dispatch){
+  static closePostModal(dispatch) {
     dispatch(closeModal());
     dispatch(clearPost());
   }
 
-  static clearImage(
-    postData,
-    post,
-    inputRef,
-    dispatch,
-    setSelectedPostImage,
-    setPostImage,
-    setPostData
-  ) {
+  static clearImage(postData, post, inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData) {
     postData.gifUrl = '';
     postData.image = '';
+    postData.video = '';
     setSelectedPostImage(null);
     setPostImage('');
     setTimeout(() => {
       if (inputRef?.current) {
         inputRef.current.textContent = !post ? postData?.post : post;
         if (post) {
-          postData.post=post;
+          postData.post = post;
         }
         setPostData(postData);
       }
       PostUtils.positionCursor('editable');
     });
-    dispatch(updatePostItem({gifUrl:'',image:'',imgId:'',imgVersion:''}));
-  }
-
-  static dispatchNotification(message, type, setApiResponse, setLoading, dispatch) {
-    setApiResponse(type);
-    setLoading(false);
-    Utils.dispatchNotification(message, type, dispatch);
+    dispatch(
+      updatePostItem({ gifUrl: '', image: '', imgId: '', imgVersion: '', video: '', videoId: '', videoVersion: '' })
+    );
   }
 
   static postInputData(imageInputRef, postData, post, setPostData) {
@@ -63,82 +51,51 @@ export class PostUtils {
           postData.post = post;
         }
         setPostData(postData);
-        PostUtils.postInputData('editable');
+        PostUtils.positionCursor('editable');
       }
     });
   }
 
-  static async sendPostWithImageRequest(
-    fileResult,
-    postData,
-    imageInputRef,
-    setApiResponse,
-    setLoading,
-    dispatch
-  ) {
-    try {
-        postData.image = fileResult;
-        if (imageInputRef?.current) {
-            imageInputRef.current.textContent = postData.post;
-        }
+  static dispatchNotification(message, type, setApiResponse, setLoading, dispatch) {
+    setApiResponse(type);
+    setLoading(false);
+    Utils.dispatchNotification(message, type, dispatch);
+  }
 
-        const response = await postService.createPostWithImage(postData);
-        if (response) {
-            setApiResponse('success');
-            setLoading(false);
-        }
+  static async sendPostWithFileRequest(type, postData, imageInputRef, setApiResponse, setLoading, dispatch) {
+    try {
+      if (imageInputRef?.current) {
+        imageInputRef.current.textContent = postData.post;
+      }
+      const response =
+        type === 'image'
+          ? await postService.createPostWithImage(postData)
+          : await postService.createPostWithVideo(postData);
+      if (response) {
+        setApiResponse('success');
+        setLoading(false);
+      }
     } catch (error) {
-        PostUtils.dispatchNotification(
-            error.response.data.message,
-            'error',
-            setApiResponse,
-            setLoading,
-            dispatch
-        );
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   }
 
-  static async sendUpdatePostWithImageRequest(
-    fileResult,
-    postId,
-    postData,
-    setApiResponse,
-    setLoading,
-    dispatch
-  ) {
+  static async sendUpdatePostWithFileRequest(type, postId, postData, setApiResponse, setLoading, dispatch) {
     try {
-      postData.image = fileResult;
-      postData.gifUrl = '';
-      postData.imgId = '';
-      postData.imgVersion = '';
-
-      const response = await postService.updatePostWithImage(postId, postData);
-
+      const response =
+        type === 'image'
+          ? await postService.updatePostWithImage(postId, postData)
+          : await postService.updatePostWithVideo(postId, postData);
       if (response) {
-        PostUtils.dispatchNotification(
-          response.data.message,
-          'success',
-          setApiResponse,
-          setLoading,
-          dispatch
-        );
-
+        PostUtils.dispatchNotification(response.data.message, 'success', setApiResponse, setLoading, dispatch);
         setTimeout(() => {
           setApiResponse('success');
           setLoading(false);
         }, 3000);
         PostUtils.closePostModal(dispatch);
       }
-
-      return response;
     } catch (error) {
-      PostUtils.dispatchNotification(
-        error.response.data.message,
-        'error',
-        setApiResponse,
-        setLoading,
-        dispatch
-      );
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   }
 
@@ -180,37 +137,35 @@ export class PostUtils {
       setPosts(posts);
     });
 
-    socketService?.socket?.on('update post',(post)=>{
-      PostUtils.updateSinglePost(posts,post, setPosts);
+    socketService?.socket?.on('update post', (post) => {
+      PostUtils.updateSinglePost(posts, post, setPosts);
     });
 
-    socketService?.socket?.on('delete post',(postId)=>{
-      const index = findIndex(posts, (postData)=>postData._id===postId);
+    socketService?.socket?.on('delete post', (postId) => {
+      const index = findIndex(posts, (postData) => postData._id === postId);
       if (index > -1) {
-        posts=cloneDeep(posts);
-        remove(posts,{_id: postId})
+        posts = cloneDeep(posts);
+        remove(posts, { _id: postId });
         setPosts(posts);
       }
     });
 
-    socketService?.socket?.on('update like',(reactionData)=>{
-      const postData=find(posts,(post)=>post._id===reactionData?.postId);
-      if (postData){
-        postData.reactions=reactionData.postReactions;
-        PostUtils.updateSinglePost(posts,postData, setPosts);
+    socketService?.socket?.on('update like', (reactionData) => {
+      const postData = find(posts, (post) => post._id === reactionData?.postId);
+      if (postData) {
+        postData.reactions = reactionData.postReactions;
+        PostUtils.updateSinglePost(posts, postData, setPosts);
       }
     });
 
-    socketService?.socket?.on('update comment',(commentData)=>{
-      const postData=find(posts,(post)=>post._id===commentData?.postId);
-      if (postData){
-        postData.comments=commentData.postReactions;
-        PostUtils.updateSinglePost(posts,postData, setPosts);
+    socketService?.socket?.on('update comment', (commentData) => {
+      const postData = find(posts, (post) => post._id === commentData?.postId);
+      if (postData) {
+        postData.commentsCount = commentData.commentsCount;
+        PostUtils.updateSinglePost(posts, postData, setPosts);
       }
     });
   }
-
-  
 
   static updateSinglePost(posts, post, setPosts) {
     posts = cloneDeep(posts);

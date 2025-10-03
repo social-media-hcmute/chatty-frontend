@@ -1,29 +1,29 @@
 import Input from '@components/input/Input';
 import { GiphyUtils } from '@services/utils/giphy-utils.service';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 
 import '@components/giphy/Giphy.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import { updatePostItem } from '@redux/reducers/post/post.reducer';
+import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import Spinner from '@components/spinner/Spinner';
 import { Utils } from '@services/utils/utils.service';
 
-    const Giphy = () => {
-    const { gifModalIsOpen } = useSelector((state) => state.modal);
-    const [gifs, setGifs] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch();
+const Giphy = () => {
+  const { gifModalIsOpen } = useSelector((state) => state.modal);
+  const [gifs, setGifs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-    const selectGif = (gif) => {
-        dispatch(updatePostItem({ gifUrl: gif, image: '' }));
-        dispatch(toggleGifModal(!gifModalIsOpen));
-    };
+  const selectGif = (gif) => {
+    dispatch(updatePostItem({ gifUrl: gif, image: '', video: '' }));
+    dispatch(toggleGifModal(!gifModalIsOpen));
+  };
 
-    useEffect(() => {
-        GiphyUtils.getTrendingGifs(setGifs, setLoading);
-    }, []);
+  useEffect(() => {
+    GiphyUtils.getTrendingGifs(setGifs, setLoading);
+  }, []);
 
   return (
     <>
@@ -42,15 +42,15 @@ import { Utils } from '@services/utils/utils.service';
             />
           </div>
 
-          {!loading && <Spinner/>}
-          
+          {loading && <Spinner />}
+
           <ul className="giphy-container-picker-list" data-testid="unorderedList">
             {gifs.map((gif) => (
               <li
                 className="giphy-container-picker-list-item"
                 data-testid="list-item"
                 key={Utils.generateString(10)}
-                onClick={()=>selectGif(gif.images.original.url)}
+                onClick={() => selectGif(gif.images.original.url)}
               >
                 <img style={{ width: '470px' }} src={`${gif.images.original.url}`} alt="" />
               </li>
